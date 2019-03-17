@@ -106,17 +106,4 @@ defmodule Conv2d do
       end)
       |> Enum.to_list)
   end
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Conv2d.hello()
-      :world
-
-  """
-  def hello do
-    :world
-  end
 end
