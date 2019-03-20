@@ -24,13 +24,12 @@ defmodule Conv2d do
 
   ## Examples
 
-    iex> Conv2d.foreach(5)
+    iex> Conv2d.foreach(5) |> Enum.to_list
     [0, 1, 2, 3, 4]
 
   """
   def foreach( n ) when n >= 0 do
-    Stream.interval(1)
-    |> Enum.take( n )
+    0..(n - 1)
   end
 
   @doc """
