@@ -3,6 +3,23 @@ defmodule Conv2d do
   Documentation for Conv2d.
   """
 
+  def bench_conv({x, y}, {dx, dy}, {n, m}) do
+    {i_time, input} = :timer.tc(fn -> matrix(0.0, {x, y}) |> repeat(n) end)
+    IO.puts "preparation of input matrices: #{i_time |> Kernel./(1_000_000)} sec."
+    {w_time, weight} = :timer.tc(fn -> matrix(0.0, {dx, dy}) |> repeat(m) |> repeat(n) end)
+    IO.puts "preparation of weight matrices: #{w_time |> Kernel./(1_000_000)} sec."
+    {c_time, result} = :timer.tc(fn -> split_calc(input, weight, {dx, dy}) end)
+    IO.puts "calculation of Conv2d: #{c_time |> Kernel./(1_000_000)} sec."
+    result
+  end
+
+  def bench_conv_1_1 do
+    {x, y} = {300, 300}
+    {dx, dy} = {3, 3}
+    {n, m} = {3, 64}
+    bench_conv({x, y}, {dx, dy}, {n, m})
+  end
+
   def matrix(value, {m, n}) do
     value
     |> repeat(m)
