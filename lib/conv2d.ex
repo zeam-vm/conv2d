@@ -20,6 +20,32 @@ defmodule Conv2d do
     bench_conv({x, y}, {dx, dy}, {n, m})
   end
 
+  @doc """
+
+  ## Examples
+
+    iex> Conv2d.foreach(5)
+    [0, 1, 2, 3, 4]
+
+  """
+  def foreach( n ) when n >= 0 do
+    Stream.interval(1)
+    |> Enum.take( n )
+  end
+
+  @doc """
+
+  ## Examples
+
+      iex> Conv2d.repeat(nil, 3)
+      [nil, nil, nil]
+
+  """
+  def repeat( value, num ) when num >= 0 do
+    foreach( num )
+    |> Enum.map(fn _ -> value end)
+  end
+
   def matrix(value, {m, n}) do
     value
     |> repeat(m)
@@ -213,153 +239,4 @@ defmodule Conv2d do
     |> Enum.map(& Enum.zip(&1))
     |> Enum.map(fn x -> Enum.map(x, & Tuple.to_list(&1)) end)
   end
-
-  @doc """
-
-  ## Examples
-
-      iex> Conv2d.join([[[[[0.1, 0.3, 0.5], [0.7, 0.9, 1.1], [1.3, 1.5, 1.7]], [[0.2, 0.4, 0.6], [0.8, 1.0, 1.2], [1.4, 1.6, 1.8]]], [[[0.3, 0.5, 0.55], [0.9, 1.1, 1.15], [1.5, 1.7, 1.75]], [[0.4, 0.6, 0.65], [1.0, 1.2, 1.25], [1.6, 1.8, 1.85]]]], [[[[0.7, 0.9, 1.1], [1.3, 1.5, 1.7], [1.9, 2.1, 2.3]], [[0.8, 1.0, 1.2], [1.4, 1.6, 1.8], [2.0, 2.2, 2.4]]], [[[0.9, 1.1, 1.15], [1.5, 1.7, 1.75], [2.1, 2.3, 2.35]], [[1.0, 1.2, 1.25], [1.6, 1.8, 1.85], [2.2, 2.4, 2.45]]]]], {3, 3})
-      [[[0.1, 0.3, 0.5, 0.55], [0.7, 0.9, 1.1, 1.15], [1.3, 1.5, 1.7, 1.75], [1.9, 2.1, 2.3, 2.35]],[[0.2, 0.4, 0.6, 0.65], [0.8, 1.0, 1.2, 1.25], [1.4, 1.6, 1.8, 1.85], [2.0, 2.2, 2.4, 2.45]]]
-  """
-  def join( input, {dx, dy} ) when dx == 3 and dy == 3 do
-    input
-    |> join_y({dx, dy})
-    |> join_x({dx, dy})
-  end
-
-  @doc """
-
-  ## Examples
-
-    iex> Conv2d.t3( [[[0.0, 0.1, 0.2], [0.3, 0.4, 0.5]], [[0.6, 0.7, 0.8], [0.9, 1.0, 1.1]]] )
-    [[[0.0, 0.1, 0.2], [0.6, 0.7, 0.8]], [[0.3, 0.4, 0.5], [0.9, 1.0, 1.1]]]
-  """
-  def t3( input ) do
-  	input
-  	|> Enum.zip
-  	|> Enum.map(& &1 |> Tuple.to_list )
-  end
-
-  @doc """
-
-  ## Examples
-
-    iex> Conv2d.foreach(5)
-    [0, 1, 2, 3, 4]
-
-  """
-  def foreach( n ) when n >= 0 do
-    Stream.interval(1)
-    |> Enum.take( n )
-  end
-
-  @doc """
-
-  ## Examples
-
-      iex> Conv2d.join_y([[[[[0.1, 0.3, 0.5], [0.7, 0.9, 1.1], [1.3, 1.5, 1.7]], [[0.2, 0.4, 0.6], [0.8, 1.0, 1.2], [1.4, 1.6, 1.8]]], [[[0.3, 0.5, 0.55], [0.9, 1.1, 1.15], [1.5, 1.7, 1.75]], [[0.4, 0.6, 0.65], [1.0, 1.2, 1.25], [1.6, 1.8, 1.85]]]], [[[[0.7, 0.9, 1.1], [1.3, 1.5, 1.7], [1.9, 2.1, 2.3]], [[0.8, 1.0, 1.2], [1.4, 1.6, 1.8], [2.0, 2.2, 2.4]]], [[[0.9, 1.1, 1.15], [1.5, 1.7, 1.75], [2.1, 2.3, 2.35]], [[1.0, 1.2, 1.25], [1.6, 1.8, 1.85], [2.2, 2.4, 2.45]]]]], {3, 3})
-      [[[[0.1, 0.3, 0.5], [0.7, 0.9, 1.1], [1.3, 1.5, 1.7], [1.9, 2.1, 2.3]], [[0.2, 0.4, 0.6], [0.8, 1.0, 1.2], [1.4, 1.6, 1.8], [2.0, 2.2, 2.4]]], [[[0.3, 0.5, 0.55], [0.9, 1.1, 1.15], [1.5, 1.7, 1.75], [2.1, 2.3, 2.35]], [[0.4, 0.6, 0.65], [1.0, 1.2, 1.25], [1.6, 1.8, 1.85], [2.2, 2.4, 2.45]]]]
-  """
-  def join_y( input, {dx, dy} ) when dx == 3 and dy == 3 do
-    input
-    |> t3()
-    |> Enum.map(fn x ->
-      x |> t3()
-      end)
-    |> Enum.map(fn x ->
-      x
-      |> Enum.map(fn y ->
-        foreach(length(y))
-        |> Enum.zip(y)
-        |> Enum.map(& {elem(&1, 0),
-          (elem(&1, 1) |> hd |> length),
-          elem(&1, 1)} )
-        |> Enum.map(fn i ->
-          (foreach(elem(i, 0))
-          |> Enum.map(fn _ -> nil
-          end))
-          ++ elem(i, 2)
-          ++ (foreach(dx - elem(i, 0) - 2)
-            |> Enum.map(fn _ -> nil
-            end)
-            )
-        end)
-        |> Enum.zip()
-        |> Enum.map(fn
-            {a, nil} -> a
-            {nil, b} -> b
-            {a, b}   ->
-              (Enum.zip(a, b)
-              |> Enum.map(& (elem(&1, 0) + elem(&1, 1)) / 2.0))
-        end)
-      end)
-    end)
-  end
-
-  @doc """
-
-  ## Examples
-
-      iex> Conv2d.repeat(nil, 3)
-      [nil, nil, nil]
-
-  """
-  def repeat( value, num ) when num >= 0 do
-    foreach( num )
-    |> Enum.map(fn _ -> value end)
-  end
-
-  @doc """
-
-  ## Examples
-
-      iex> Conv2d.size_i([[0.0, 0.0, 0.0]])
-      3
-
-  """
-  def size_i( input ) do
-    input |> hd |> length
-  end
-
-  @doc """
-
-  ## Examples
-
-      iex> Conv2d.join_x([[[[0.1, 0.3, 0.5], [0.7, 0.9, 1.1], [1.3, 1.5, 1.7], [1.9, 2.1, 2.3]], [[0.2, 0.4, 0.6], [0.8, 1.0, 1.2], [1.4, 1.6, 1.8], [2.0, 2.2, 2.4]]], [[[0.3, 0.5, 0.55], [0.9, 1.1, 1.15], [1.5, 1.7, 1.75], [2.1, 2.3, 2.35]], [[0.4, 0.6, 0.65], [1.0, 1.2, 1.25], [1.6, 1.8, 1.85], [2.2, 2.4, 2.45]]]], {3, 3})
-      [[[0.1, 0.3, 0.5, 0.55], [0.7, 0.9, 1.1, 1.15], [1.3, 1.5, 1.7, 1.75], [1.9, 2.1, 2.3, 2.35]],[[0.2, 0.4, 0.6, 0.65], [0.8, 1.0, 1.2, 1.25], [1.4, 1.6, 1.8, 1.85], [2.0, 2.2, 2.4, 2.45]]]
-  """
-  def join_x( input, {dx, dy} ) when dx == 3 and dy == 3 do
-    input
-    |> Enum.zip
-    |> Enum.map(fn x -> x |> Tuple.to_list end)
-    |> Enum.map(fn x ->
-      foreach(length(x))
-      |> Enum.zip(x) end)
-    |> Enum.map(fn x ->
-      x
-      |> Enum.map(& {elem(&1, 0),
-        size_i(elem(&1, 1)),
-        elem(&1, 1)})
-      |> Enum.map(fn y ->
-        elem(y, 2)
-        |> Enum.map(fn i ->
-          repeat(nil, elem(y, 0))
-          ++ i
-          ++ repeat(nil, dy - elem(y, 0) - 2)
-        end)
-      end)
-      |> Enum.zip
-      |> Enum.map(fn y ->
-        y
-        |> Tuple.to_list
-        |> Enum.zip
-        |> Enum.map(fn
-          {a, nil} -> a
-          {nil, b} -> b
-          {a, b}   -> (a + b) / 2.0
-        end)
-      end)
-    end)
-  end
-
 end
