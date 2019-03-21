@@ -59,12 +59,21 @@ defmodule Conv2d do
       [[[598.5, 615.6, 632.7], [664.6499999999999, 684.45, 704.25]], [[884.7, 912.5999999999999, 940.5], [950.8499999999999, 981.4499999999999, 1012.0500000000001]]]
   """
   def split_calc( input, weight, {dx, dy} ) do
-    split(input, {dx, dy})
+    {s_time, split} = :timer.tc(fn -> split(input, {dx, dy}) end)
+
+    IO.puts "splitting into matrices: #{s_time |> Kernel./(1_000_000)}"
+
+    {x, y} = size_w(split)
+    IO.puts "size of the matrices: #{x, y}"
+
+    {c_time, calc} = split
     |> Enum.map(fn x ->
       Enum.map(x, fn y ->
         calc(y, weight)
       end)
     end)
+
+    IO.puts "calculation: #{c_time |> Kernel./(1_000_000)}"
   end
 
   @doc """
@@ -80,6 +89,9 @@ defmodule Conv2d do
     {m, ^n} = size_w(weight)
     t_input = input |> dup(m) |> t1
     t_weight = weight |> t1
+
+    IO.puts "size of mult: #{length(t_input)}"
+
     mult = Enum.zip(t_input, t_weight) |> Enum.map(& elem(&1, 0) * elem(&1, 1))
 
     mult
@@ -196,11 +208,9 @@ defmodule Conv2d do
   defp split_s( input, dx, dy, x, y ) do
     input
     |> Enum.map(&
-      Stream.interval(1)
-      |> Enum.take(y - dy + 1)
+      foreach(y - dy + 1)
       |> Enum.map(fn iy ->
-        Stream.interval(1)
-        |> Enum.take(x - dx + 1)
+        foreach(x - dx + 1)
         |> Enum.map(fn ix ->
           split_ss( &1, dx, dy, ix, iy )
         end)
