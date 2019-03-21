@@ -76,7 +76,7 @@ defmodule Conv2d do
 
     IO.puts "calculation: #{c_time |> Kernel./(1_000_000)}"
 
-    retult
+    result
   end
 
   @doc """
