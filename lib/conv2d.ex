@@ -92,8 +92,6 @@ defmodule Conv2d do
     t_input = input |> dup(m) |> t1
     t_weight = weight |> t1
 
-    IO.puts "size of mult: #{length(t_input)}"
-
     mult = Enum.zip(t_input, t_weight) |> Enum.map(& elem(&1, 0) * elem(&1, 1))
 
     mult
