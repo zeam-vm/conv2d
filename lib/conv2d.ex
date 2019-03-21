@@ -66,16 +66,17 @@ defmodule Conv2d do
     {x, y} = size_w(split)
     IO.puts "size of the matrices: #{x}, #{y}"
 
-    {c_time, calc} = split
-    |> Enum.map(fn x ->
-      Enum.map(x, fn y ->
-        calc(y, weight)
+    {c_time, result} = :timer.tc(fn -> split
+      |> Enum.map(fn x ->
+        Enum.map(x, fn y ->
+          calc(y, weight)
+        end)
       end)
     end)
 
     IO.puts "calculation: #{c_time |> Kernel./(1_000_000)}"
 
-    calc
+    retult
   end
 
   @doc """
