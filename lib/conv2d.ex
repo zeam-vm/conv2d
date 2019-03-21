@@ -64,7 +64,7 @@ defmodule Conv2d do
     IO.puts "splitting into matrices: #{s_time |> Kernel./(1_000_000)}"
 
     {x, y} = size_w(split)
-    IO.puts "size of the matrices: #{x, y}"
+    IO.puts "size of the matrices: #{x}, #{y}"
 
     {c_time, calc} = split
     |> Enum.map(fn x ->
